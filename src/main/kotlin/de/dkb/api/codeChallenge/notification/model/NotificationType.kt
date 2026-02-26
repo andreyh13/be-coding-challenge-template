@@ -10,6 +10,21 @@ enum class NotificationType {
     type3,
     type4,
     type5,
+    type6,
+    ;
+
+    companion object {
+
+        private val groups = listOf(
+            setOf(type1, type2, type3, type6),
+            setOf(type4, type5),
+        )
+
+        fun getCategorySet(notificationType: NotificationType): Set<NotificationType> {
+
+            return groups.firstOrNull { it.contains(notificationType) } ?: setOf()
+        }
+    }
 }
 
 @Converter

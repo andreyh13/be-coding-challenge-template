@@ -1,6 +1,7 @@
 package de.dkb.api.codeChallenge.notification
 
 import de.dkb.api.codeChallenge.notification.model.NotificationDto
+import de.dkb.api.codeChallenge.notification.model.NotificationType
 import de.dkb.api.codeChallenge.notification.model.User
 import de.dkb.api.codeChallenge.notification.model.UserRepository
 import org.springframework.stereotype.Service
@@ -12,11 +13,23 @@ class NotificationService(private val userRepository: UserRepository) {
 
     fun sendNotification(notificationDto: NotificationDto) =
         userRepository.findById(notificationDto.userId)
-            .filter { it.notifications.contains(notificationDto.notificationType) }
+            .filter { user ->
+                user.notifications.any {
+                    it in NotificationType.getCategorySet(notificationDto.notificationType)
+                }
+            }
             .ifPresent { // Logic to send notification to user
                 println(
                     "Sending notification of type ${notificationDto.notificationType}" +
                             " to user ``````${it.id}: ${notificationDto.message}"
                 )
+
+                registeredNotifications.add(notificationDto.notificationType to it)
             }
+
+    // Added for testing purposes
+    companion object {
+
+        val registeredNotifications = mutableListOf<Pair<NotificationType, User>>()
+    }
 }
